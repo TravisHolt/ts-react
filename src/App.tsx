@@ -1,8 +1,8 @@
 import React from 'react';
 import FormGenerator from './components/FormGenerator';
-import { Layout, Row, Col, } from 'antd';
+import { Layout } from 'antd';
 
-const { Header, Content } = Layout;
+const { Header } = Layout;
 
 const App = () => {
   return (

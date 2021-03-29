@@ -1,14 +1,13 @@
-import React, { useState } from 'react';
-import { Layout, Select, Modal, Row, Col, Card, Button, Input as AntInput } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layout, Row, Col, Card, Button } from 'antd';
 import { Responsive, WidthProvider } from 'react-grid-layout';
 import Input from './FormComponents/Input';
 import SectionModal from './SectionModal';
 import InputModal from './InputModal';
 
-const { Header, Content } = Layout;
+const { localStorage } = window;
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-const { Option } = Select;
 
 interface Props {
   label?: string;
@@ -180,7 +179,7 @@ function FormGenerator() {
       sections.push({ title, span, id, fields: [] });
 
       updateSchema(newSchema);
-      updateLayout(state => [...state, { i: id, x: 0, y: Infinity, h: 4, w: 4 }]);
+      updateLayout(state => [...state, { i: id, x: 0, y: 10000, h: 4, w: 4 }]);
     }
   };
 
@@ -197,6 +196,34 @@ function FormGenerator() {
       setData({ ...formData, [key]: e.target.value })
     },
   };
+
+  useEffect(() => {
+    const lsLayout = localStorage.getItem('layout');
+    const lsData = localStorage.getItem('data');
+    const lsSchema = localStorage.getItem('schema');
+
+    if (lsLayout) {
+      updateLayout(JSON.parse(lsLayout));
+    }
+    if (lsData) {
+      setData(JSON.parse(lsData));
+    }
+    if (lsSchema) {
+      updateSchema(JSON.parse(lsSchema));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('schema', JSON.stringify(schema));
+  }, [schema]);
+
+  useEffect(() => {
+    localStorage.setItem('layout', JSON.stringify(layout));
+  }, [layout]);
+
+  useEffect(() => {
+    localStorage.setItem('data', JSON.stringify(formData));
+  }, [formData]);
 
   return (
     <Row style={{ margin: '18px' }}>
@@ -220,8 +247,8 @@ function FormGenerator() {
                 cols={{ lg: 12 }}
                 rowHeight={48}
                 resizeHandles={['se']}
-                isDraggable={editable}
-                isResizable={resizable}
+                isDraggable={false && editable}
+                isResizable={false && resizable}
               >
                 {schema.sections.map((section, index) => (
                   <div key={section.id}>

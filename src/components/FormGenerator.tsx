@@ -247,8 +247,9 @@ function FormGenerator() {
                 cols={{ lg: 12 }}
                 rowHeight={48}
                 resizeHandles={['se']}
-                isDraggable={false && editable}
-                isResizable={false && resizable}
+                isDraggable={editable}
+                isResizable={resizable}
+                onLayoutChange={updateLayout}
               >
                 {schema.sections.map((section, index) => (
                   <div key={section.id}>

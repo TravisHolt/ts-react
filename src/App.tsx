@@ -6,7 +6,7 @@ const { Header } = Layout;
 
 const App = () => {
   return (
-    <Layout style={{ height: '100vh' }}>
+    <Layout style={{ minHeight: '100vh' }}>
       <Header style={{ zIndex: 2}} />
       <FormGenerator />
     </Layout>

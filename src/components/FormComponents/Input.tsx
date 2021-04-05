@@ -3,7 +3,7 @@ import { Input as AntInput } from 'antd';
 
 interface InputProps {
   fieldKey: string;
-  handleChange: any;
+  handleChange: Function;
   formData: any;
   type: string;
   label: string;
@@ -13,7 +13,10 @@ const Input = (props: InputProps) => {
   return (
     <>
       <p>{props.label}</p>
-      <AntInput value={props.formData[props.fieldKey]} onChange={e => props.handleChange(e, props.fieldKey)} type={props.type} />
+      <AntInput
+        value={props.formData[props.fieldKey]}
+        onChange={e => props.handleChange(e, props.fieldKey)}
+        type={props.type} />
     </>
   )
 };

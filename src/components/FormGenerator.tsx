@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Layout, Row, Col, Card, Button } from 'antd';
 import { Responsive, WidthProvider } from 'react-grid-layout';
-import Input from './FormComponents/Input';
+import { Input, Select } from './FormComponents';
 import SectionModal from './SectionModal';
 import InputModal from './InputModal';
 
@@ -9,11 +9,17 @@ const { localStorage } = window;
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
+interface Option {
+  label: string;
+  value: string;
+}
+
 interface Props {
   label?: string;
   type?: string;
   fieldKey: string;
-  function?: string;
+  function: string;
+  options?: Option[]; 
 }
 
 interface Field {
@@ -38,6 +44,8 @@ export interface NewField {
   type: string;
   label: string;
   key: string;
+  function: string;
+  options?: Option[];
 }
 
 interface Grid {
@@ -58,6 +66,7 @@ type HandleNewFieldState = (fieldName: string, value: string) => void;
 
 const componentMap = {
   'Input': Input,
+  'Select': Select
 }
 
 function FormGenerator() {
@@ -79,6 +88,7 @@ function FormGenerator() {
     type: '',
     label: '',
     key: '',
+    function: ''
   });
   const [schema, updateSchema] = useState<Schema | null>({
     form_title: "Dynamic Form Builder",
@@ -96,6 +106,16 @@ function FormGenerator() {
               function: 'handleInput',
               fieldKey: 'first_input'
             }
+          },
+          {
+            widget: 'Select',
+            span: 12,
+            props: {
+              options: [{ label: 'Test', value: 'test'}],
+              label: 'Select',
+              fieldKey: 'test',
+              function: 'handleSelect',
+            }
           }
         ],
       },
@@ -109,7 +129,8 @@ function FormGenerator() {
             span: 12,
             props: {
               label: 'Name',
-              fieldKey: 'name'
+              fieldKey: 'name',
+              function: 'handleInput',
             }
           },
           {
@@ -118,7 +139,8 @@ function FormGenerator() {
             props: {
               label: 'Email',
               type: 'email',
-              fieldKey: 'email'
+              fieldKey: 'email',
+              function: 'handleInput',
             }
           },
           {
@@ -127,7 +149,8 @@ function FormGenerator() {
             props: {
               label: 'Password',
               type: 'password',
-              fieldKey: 'password'
+              fieldKey: 'password',
+              function: 'handleInput',
             }
           }
         ]
@@ -139,7 +162,7 @@ function FormGenerator() {
     toggleVisible(true);
     setSelectedSection(label);
   };
-
+      
   const submitModal = (): void => {
     if (schema) {
       let newSchema = { ...schema };
@@ -148,8 +171,10 @@ function FormGenerator() {
         widget: newField.type,
         span: 12,
         props: {
+          options: newField.options || [],
           label: newField.label,
-          fieldKey: newField.key
+          fieldKey: newField.key,
+          function: newField.function,
         }
       }
 
@@ -157,7 +182,7 @@ function FormGenerator() {
       updateSchema(newSchema);
       toggleVisible(false);
       setSelectedSection('');
-      setNewField({ type: '', label: '', key: '' });
+      setNewField({ type: '', label: '', key: '', function: '', options: []});
     }
   };
 
@@ -191,10 +216,12 @@ function FormGenerator() {
     setNewField(state => ({ ...state, [fieldName]: value }))
   }
 
-  const functions = {
-    handleInput(e: any, key: string) {
+  const inputFunctions = {
+    handleInput(e: any, key: string): void {
       setData({ ...formData, [key]: e.target.value })
     },
+    handleSelect(val: any, key: string): void {
+      setData({ ...formData, [key]: val })}
   };
 
   useEffect(() => {
@@ -256,11 +283,15 @@ function FormGenerator() {
                     <Card title={section.title} key={index} extra={<Button ghost onClick={() => addField(section.title)} type='primary'> Add Field </Button>}>
                       <Row gutter={12}>
                         {section.fields.map(field => {
+                          // Need to figure these out
                           // @ts-ignore
-                          const Comp = componentMap[field.widget]
+                          const Comp = componentMap[field.widget];
+                          //@ts-ignore
+                          const func = inputFunctions[field.props.function]
+
                           return (
                             <Col span={field.span}>
-                              <Comp {...field.props} handleChange={functions.handleInput} formData={formData} />
+                              <Comp {...field.props} handleChange={func} formData={formData} />
                             </Col>
                           )
                         })}
